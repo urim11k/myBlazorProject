@@ -1,0 +1,46 @@
+﻿@page "/register"
+@using BlazorEventCardExample.Models
+
+<h3>Registration</h3>
+
+<EditForm Model="@registration" OnValidSubmit="HandleValidSubmit" FormName="RegistrationForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="fullName" class="form-label">Full Name</label>
+        <InputText @bind-Value="registration.FullName" class="form-control" id="fullName" />
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <InputText @bind-Value="registration.Email" class="form-control" id="email" />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <label for="password" class="form-label">Password</label>
+        <InputText @bind-Value="registration.Password" class="form-control" id="password" type="password" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+</EditForm>
+
+@code {
+    private RegistrationModel registration = new();
+
+    private async Task HandleValidSubmit()
+    {
+        // If this form is valid, let's store the user in session
+        await SessionManager.SetUserAsync(registration);
+
+        // Optionally, navigate somewhere else or show a success message
+        // e.g., NavigationManager.NavigateTo("/attendance");
+    }
+
+    [Inject]
+    private BlazorEventCardExample.Services.SessionManager SessionManager { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+}

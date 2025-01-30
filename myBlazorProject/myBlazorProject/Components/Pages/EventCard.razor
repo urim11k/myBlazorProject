@@ -1,0 +1,45 @@
+﻿<h3>EventCard</h3>
+
+@code {
+
+}
+
+<!-- Shared/EventCard.razor -->
+<div class="card my-2">
+    <div class="card-body">
+        <label for="studentName">Student Name: </label>
+        <InputText id="studentName" @bind-Value="StudentName" class="form-control mb-2" />
+
+        <button class="btn btn-primary" @onclick="AddStudent">
+            Add Student
+        </button>
+    </div>
+</div>
+
+@code {
+    // Holds the current text for the new student
+    [Parameter]
+    public string StudentName { get; set; } = string.Empty;
+
+    // Event callback that notifies the parent when StudentName changes
+    [Parameter]
+    public EventCallback<string> StudentNameChanged { get; set; }
+
+    // Parent can handle when a student is added
+    [Parameter]
+    public EventCallback<string> OnAddStudent { get; set; }
+
+    private async Task AddStudent()
+    {
+        // 1. Invoke the parent callback with the student name
+        await OnAddStudent.InvokeAsync(StudentName);
+
+        // 2. Clear out the local text
+        StudentName = string.Empty;
+
+        // 3. Invoke the parent's StudentNameChanged so two-way data binding is maintained
+        await StudentNameChanged.InvokeAsync(StudentName);
+    }
+}
+
+

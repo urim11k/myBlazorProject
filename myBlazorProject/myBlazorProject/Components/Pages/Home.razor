@@ -1,0 +1,84 @@
+﻿@page "/"
+@using BlazorEventCardExample.Services
+
+<h3>Attendance Tracker - Home Page</h3>
+
+@if (session.CurrentUser is null)
+{
+    <p>Please <a href="/register">register</a> or log in first.</p>
+}
+else
+{
+    <p><strong>User:</strong> @session.CurrentUser.FullName (@session.CurrentUser.Email)</p>
+
+    <!-- EventCard for adding new students -->
+    <EventCard StudentName="@newAttendee"
+               StudentNameChanged="@((string val) => newAttendee = val)"
+               OnAddStudent="@AddAttendee" />
+
+    <!-- Existing attendance list -->
+    <ul class="list-group mt-3">
+        @foreach (var attendee in attendees)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                @attendee.Name
+                <input type="checkbox" @bind="attendee.IsPresent" />
+            </li>
+        }
+    </ul>
+
+    <button class="btn btn-success mt-3" @onclick="SaveAttendance">
+        Save Attendance
+    </button>
+
+    <button class="btn btn-danger mt-3" @onclick="Logout">
+        Logout
+    </button>
+}
+
+@code {
+    // Pre-populated attendees for demo
+    private List<Attendee> attendees = new()
+    {
+        new Attendee { Name = "Alice" },
+        new Attendee { Name = "Bob" },
+    };
+
+    // Updated via two-way binding with EventCard
+    private string newAttendee = string.Empty;
+
+    private void AddAttendee(string studentName)
+    {
+        if (!string.IsNullOrWhiteSpace(studentName))
+        {
+            attendees.Add(new Attendee { Name = studentName });
+        }
+        // Clear the newAttendee field is handled in the EventCard
+    }
+
+    private void SaveAttendance()
+    {
+        // In a real app, you'd save to a database or call an API
+        Console.WriteLine("Attendance has been saved!");
+    }
+
+    private async Task Logout()
+    {
+        // Clears the user session
+        await session.ClearUserAsync();
+        // Navigate home or refresh
+        navManager.NavigateTo("/");
+    }
+
+    [Inject]
+    private SessionManager session { get; set; } = default!;
+
+    [Inject]
+    private NavigationManager navManager { get; set; } = default!;
+
+    private class Attendee
+    {
+        public string Name { get; set; } = string.Empty;
+        public bool IsPresent { get; set; }
+    }
+}
